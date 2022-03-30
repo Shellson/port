@@ -27,7 +27,7 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized
 @torch.no_grad()
 def run(weights='models/yolov5m.pt',  # model.pt path(s)
         source='data/images',  # file/dir/URL/glob, 0 for webcam
-        imgsz=640,  # inference size (pixels)
+        imgsz=1280,  # inference size (pixels)
         conf_thres=0.25,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
@@ -44,7 +44,7 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
         project='results',  # save results to project/name
         name='exp',  # save results to project/name
         exist_ok=False,  # existing project/name ok, do not increment
-        line_thickness=3,  # bounding box thickness (pixels)
+        line_thickness=1,  # bounding box thickness (pixels)
         hide_labels=False,  # hide labels
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
@@ -94,16 +94,54 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
     for path, img, im0s, vid_cap in dataset:
         # mask for certain region
         #1,2,3,4 分别对应左上，右上，右下，左下四个点
-        hl1=4/10 #监测区域高度距离图片顶部比例
-        wl1=2/10 #监测区域高度距离图片左部比例
-        hl2 = 4.1 / 10  # 监测区域高度距离图片顶部比例
-        wl2 = 3.2 / 10  # 监测区域高度距离图片左部比例
+        hl1= 0.44#监测区域高度距离图片顶部比例
+        wl1= 0.058 #监测区域高度距离图片左部比例
+        hl2 = 0.44  # 监测区域高度距离图片顶部比例
+        wl2 = 0.2 # 监测区域高度距离图片左部比例
         hl3 = 1  # 监测区域高度距离图片顶部比例
-        wl3 = 2/10  # 监测区域高度距离图片左部比例
-        hl4 = 10/10  # 监测区域高度距离图片顶部比例
-        wl4 = -2/10  # 监测区域高度距离图片左部比例
+        wl3 = 0.16  # 监测区域高度距离图片左部比例
+        hl4 = 1  # 监测区域高度距离图片顶部比例
+        wl4 = -0.57  # 监测区域高度距离图片左部比例
+
+        a1hl1 = 0.41  # 监测区域高度距离图片顶部比例
+        a1wl1 = 0.24  # 监测区域高度距离图片左部比例
+        a1hl2 = 0.40  # 监测区域高度距离图片顶部比例
+        a1wl2 = 0.35  # 监测区域高度距离图片左部比例
+        a1hl3 = 1  # 监测区域高度距离图片顶部比例
+        a1wl3 = 0.65 # 监测区域高度距离图片左部比例
+        a1hl4 = 10 / 10  # 监测区域高度距离图片顶部比例
+        a1wl4 = 0.28  # 监测区域高度距离图片左部比例
+
+        a2hl1 = 0.45  # 监测区域高度距离图片顶部比例
+        a2wl1 = 0.48  # 监测区域高度距离图片左部比例
+        a2hl2 = 0.44 # 监测区域高度距离图片顶部比例
+        a2wl2 = 0.61  # 监测区域高度距离图片左部比例
+        a2hl3 = 1  # 监测区域高度距离图片顶部比例
+        a2wl3 = 1.3  # 监测区域高度距离图片左部比例
+        a2hl4 = 1  # 监测区域高度距离图片顶部比例
+        a2wl4 = 0.92 # 监测区域高度距离图片左部比例
+
+        a3hl1 = 0.38 # 监测区域高度距离图片顶部比例
+        a3wl1 = 0.57   # 监测区域高度距离图片左部比例
+        a3hl2 = 0.37  # 监测区域高度距离图片顶部比例
+        a3wl2 = 0.66 # 监测区域高度距离图片左部比例
+        a3hl3 = 0.78  # 监测区域高度距离图片顶部比例
+        a3wl3 = 1.3  # 监测区域高度距离图片左部比例
+        a3hl4 = 0.73  # 监测区域高度距离图片顶部比例
+        a3wl4 = 1  # 监测区域高度距离图片左部比例
+
+        a4hl1 = 4 / 10  # 监测区域高度距离图片顶部比例
+        a4wl1 = 2 / 10  # 监测区域高度距离图片左部比例
+        a4hl2 = 4.1 / 10  # 监测区域高度距离图片顶部比例
+        a4wl2 = 3.2 / 10  # 监测区域高度距离图片左部比例
+        a4hl3 = 1  # 监测区域高度距离图片顶部比例
+        a4wl3 = 2 / 10  # 监测区域高度距离图片左部比例
+        a4hl4 = 10 / 10  # 监测区域高度距离图片顶部比例
+        a4wl4 = -2 / 10  # 监测区域高度距离图片左部比例
+
         if webcam:
             for b in range(0,img.shape[0]):
+                #area1
                 mask = np.zeros([img[b].shape[1], img[b].shape[2]], dtype=np.uint8)
                 #mask[round(img[b].shape[1] * hl1):img[b].shape[1], round(img[b].shape[2] * wl1):img[b].shape[2]] = 255
                 pts = np.array([[int(img[b].shape[2] * wl1), int(img[b].shape[1] * hl1)],  # pts1
@@ -116,6 +154,44 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
                 #cv2.imshow('1',imgc)
                 img[b] = imgc.transpose((2, 0, 1))
 
+                #area2
+                mask1 = np.zeros([img[b].shape[1], img[b].shape[2]], dtype=np.uint8)
+                # mask[round(img[b].shape[1] * hl1):img[b].shape[1], round(img[b].shape[2] * wl1):img[b].shape[2]] = 255
+                pts = np.array([[int(img[b].shape[2] * a1wl1), int(img[b].shape[1] * a1hl1)],  # pts1
+                                [int(img[b].shape[2] * a1wl2), int(img[b].shape[1] * a1hl2)],  # pts2
+                                [int(img[b].shape[2] * a1wl3), int(img[b].shape[1] * a1hl3)],  # pts3
+                                [int(img[b].shape[2] * a1wl4), int(img[b].shape[1] * a1hl4)]], np.int32)
+                mask1 = cv2.fillPoly(mask1, [pts], (255, 255, 255))
+                imgc1 = img[b].transpose((1, 2, 0))
+                imgc1 = cv2.add(imgc1, np.zeros(np.shape(imgc1), dtype=np.uint8), mask=mask1)
+                # cv2.imshow('1',imgc1)
+                img[b] = imgc1.transpose((2, 0, 1))
+
+                # area3
+                mask1 = np.zeros([img[b].shape[1], img[b].shape[2]], dtype=np.uint8)
+                # mask[round(img[b].shape[1] * hl1):img[b].shape[1], round(img[b].shape[2] * wl1):img[b].shape[2]] = 255
+                pts = np.array([[int(img[b].shape[2] * a2wl1), int(img[b].shape[1] * a2hl1)],  # pts1
+                                [int(img[b].shape[2] * a2wl2), int(img[b].shape[1] * a2hl2)],  # pts2
+                                [int(img[b].shape[2] * a2wl3), int(img[b].shape[1] * a2hl3)],  # pts3
+                                [int(img[b].shape[2] * a2wl4), int(img[b].shape[1] * a2hl4)]], np.int32)
+                mask1 = cv2.fillPoly(mask1, [pts], (255, 255, 255))
+                imgc1 = img[b].transpose((1, 2, 0))
+                imgc1 = cv2.add(imgc1, np.zeros(np.shape(imgc1), dtype=np.uint8), mask=mask1)
+                # cv2.imshow('1', imgc1)
+                img[b] = imgc1.transpose((2, 0, 1))
+
+                # area4
+                mask1 = np.zeros([img[b].shape[1], img[b].shape[2]], dtype=np.uint8)
+                # mask[round(img[b].shape[1] * hl1):img[b].shape[1], round(img[b].shape[2] * wl1):img[b].shape[2]] = 255
+                pts = np.array([[int(img[b].shape[2] * a3wl1), int(img[b].shape[1] * a3hl1)],  # pts1
+                                [int(img[b].shape[2] * a3wl2), int(img[b].shape[1] * a3hl2)],  # pts2
+                                [int(img[b].shape[2] * a3wl3), int(img[b].shape[1] * a3hl3)],  # pts3
+                                [int(img[b].shape[2] * a3wl4), int(img[b].shape[1] * a3hl4)]], np.int32)
+                mask1 = cv2.fillPoly(mask1, [pts], (255, 255, 255))
+                imgc1 = img[b].transpose((1, 2, 0))
+                imgc1 = cv2.add(imgc1, np.zeros(np.shape(imgc1), dtype=np.uint8), mask=mask1)
+                # cv2.imshow('1', imgc1)
+                img[b] = imgc1.transpose((2, 0, 1))
         else:
             mask = np.zeros([img.shape[1], img.shape[2]], dtype=np.uint8)
             #mask[round(img.shape[1] * hl1):img.shape[1], round(img.shape[2] * wl1):img.shape[2]] = 255
@@ -127,6 +203,8 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
             img = img.transpose((1, 2, 0))
             img = cv2.add(img, np.zeros(np.shape(img), dtype=np.uint8), mask=mask)
             img = img.transpose((2, 0, 1))
+
+
 
 
 
@@ -154,7 +232,7 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
             if webcam:  # batch_size >= 1
                 p, s, im0, frame = path[i], f'{i}: ', im0s[i].copy(), dataset.count
                 cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * wl1-5), int(im0.shape[0] * hl1-5)), cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0, (255, 255, 0), 2, cv2.LINE_AA)
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
 
                 pts = np.array([[int(im0.shape[1] * wl1), int(im0.shape[0] * hl1)], #pts1
                                 [int(im0.shape[1] * wl2), int(im0.shape[0] * hl2)],    #pts2
@@ -164,13 +242,61 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
                 zeros = np.zeros((im0.shape), dtype=np.uint8)
                 mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
                 im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
-                cv2.polylines(im0, [pts],True, (255, 255, 0),3)
+                cv2.polylines(im0, [pts],True, (255, 255, 0),1)
                 #plot_one_box(dr, im0, label='Detection_Region', color=(0, 255, 0), line_thickness=2)
+
+                #area1
+                cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * a1wl1 - 5), int(im0.shape[0] * a1hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a1wl1), int(im0.shape[0] * a1hl1)],  # pts1
+                                [int(im0.shape[1] * a1wl2), int(im0.shape[0] * a1hl2)],  # pts2
+                                [int(im0.shape[1] * a1wl3), int(im0.shape[0] * a1hl3)],  # pts3
+                                [int(im0.shape[1] * a1wl4), int(im0.shape[0] * a1hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
+
+
+                # area3
+                cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * a3wl1 - 5), int(im0.shape[0] * a3hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a3wl1), int(im0.shape[0] * a3hl1)],  # pts1
+                                [int(im0.shape[1] * a3wl2), int(im0.shape[0] * a3hl2)],  # pts2
+                                [int(im0.shape[1] * a3wl3), int(im0.shape[0] * a3hl3)],  # pts3
+                                [int(im0.shape[1] * a3wl4), int(im0.shape[0] * a3hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
+
+
+                # area2
+                cv2.putText(im0, "Detection_Region3", (int(im0.shape[1] * a2wl1 - 5), int(im0.shape[0] * a2hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a2wl1), int(im0.shape[0] * a2hl1)],  # pts1
+                                [int(im0.shape[1] * a2wl2), int(im0.shape[0] * a2hl2)],  # pts2
+                                [int(im0.shape[1] * a2wl3), int(im0.shape[0] * a2hl3)],  # pts3
+                                [int(im0.shape[1] * a2wl4), int(im0.shape[0] * a2hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
+
             else:
                 p, s, im0, frame = path, '', im0s.copy(), getattr(dataset, 'frame', 0)
                 cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * wl1 - 5), int(im0.shape[0] * hl1 - 5)),
                             cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0, (255, 255, 0), 2, cv2.LINE_AA)
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
                 pts = np.array([[int(im0.shape[1] * wl1), int(im0.shape[0] * hl1)],  # pts1
                                 [int(im0.shape[1] * wl2), int(im0.shape[0] * hl2)],  # pts2
                                 [int(im0.shape[1] * wl3), int(im0.shape[0] * hl3)],  # pts3
@@ -180,8 +306,53 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
                 mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
                 im0 = cv2.addWeighted(im0,1, mask, 0.2, 0)
 
-                cv2.polylines(im0, [pts], True, (255, 255, 0),3)
+                cv2.polylines(im0, [pts], True, (255, 255, 0),1)
 
+                #area1
+                cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * a1wl1 - 5), int(im0.shape[0] * a1hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a1wl1), int(im0.shape[0] * a1hl1)],  # pts1
+                                [int(im0.shape[1] * a1wl2), int(im0.shape[0] * a1hl2)],  # pts2
+                                [int(im0.shape[1] * a1wl3), int(im0.shape[0] * a1hl3)],  # pts3
+                                [int(im0.shape[1] * a1wl4), int(im0.shape[0] * a1hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
+
+                # area3
+                cv2.putText(im0, "Detection_Region", (int(im0.shape[1] * a3wl1 - 5), int(im0.shape[0] * a3hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a3wl1), int(im0.shape[0] * a3hl1)],  # pts1
+                                [int(im0.shape[1] * a3wl2), int(im0.shape[0] * a3hl2)],  # pts2
+                                [int(im0.shape[1] * a3wl3), int(im0.shape[0] * a3hl3)],  # pts3
+                                [int(im0.shape[1] * a3wl4), int(im0.shape[0] * a3hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
+
+
+                # area2
+                cv2.putText(im0, "Detection_Region3", (int(im0.shape[1] * a2wl1 - 5), int(im0.shape[0] * a2hl1 - 5)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (255, 255, 0), 1, cv2.LINE_AA)
+
+                pts = np.array([[int(im0.shape[1] * a2wl1), int(im0.shape[0] * a2hl1)],  # pts1
+                                [int(im0.shape[1] * a2wl2), int(im0.shape[0] * a2hl2)],  # pts2
+                                [int(im0.shape[1] * a2wl3), int(im0.shape[0] * a2hl3)],  # pts3
+                                [int(im0.shape[1] * a2wl4), int(im0.shape[0] * a2hl4)]], np.int32)  # pts4
+                # pts = pts.reshape((-1, 1, 2))
+                zeros = np.zeros((im0.shape), dtype=np.uint8)
+                mask = cv2.fillPoly(zeros, [pts], color=(0, 165, 255))
+                im0 = cv2.addWeighted(im0, 1, mask, 0.2, 0)
+                cv2.polylines(im0, [pts], True, (255, 255, 0), 1)
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # img.jpg
@@ -210,7 +381,7 @@ def run(weights='models/yolov5m.pt',  # model.pt path(s)
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
 
-                        warninglist = ['bicycle', 'car', 'motorcycle']
+                        warninglist = ['bicycle', 'person', 'car']
                         if names[c] in warninglist:
                         # if names[c] in warninglist and conf >= 0.5:
                             print(f'Found illegal intrusion of {names[c]}')
@@ -260,7 +431,7 @@ def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='yolov5s.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='data/images', help='file/dir/URL/glob, 0 for webcam')
-    parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=640, help='inference size (pixels)')
+    parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=1280, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IoU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
@@ -277,7 +448,7 @@ def parse_opt():
     parser.add_argument('--project', default='results/', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
-    parser.add_argument('--line-thickness', default=3, type=int, help='bounding box thickness (pixels)')
+    parser.add_argument('--line-thickness', default=2, type=int, help='bounding box thickness (pixels)')
     parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
